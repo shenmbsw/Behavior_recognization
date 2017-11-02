@@ -15,6 +15,6 @@ The thesis Large-scale Video Classification with Convolutional Neural Networks w
 
 2. How to do the pre processing of the video using motion detection method. I will try both continuous frames subtraction, background subtraction, and no preprocessing video as the input to find if the motion detection method could provide a better result.
 
-#### Executing
+### Executing
 1. Down load data set and save in the master root.
 2. Execute src/first.py
