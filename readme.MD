@@ -1,6 +1,6 @@
 Final project for EC720: ICPR 2010 Contest on Semantic Description of Human Activities
 
-Copyright <2017> <Shen Shen>
+Copyright <2017> Shen Shen
 
 the data base and the task is provided at:
 http://cvrc.ece.utexas.edu/SDHA2010/Human_Interaction.html#Data
