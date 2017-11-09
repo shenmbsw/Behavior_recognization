@@ -1,14 +1,23 @@
 import tensorflow as tf
 import numpy as np
+import os
 import batch_data_generators as bdg
 from ftf_model import cnn_model, loss_function
+
+# Get the assiged number of cores for this job. This is stored in
+# the NSLOTS variable, If NSLOTS is not defined throw an exception.
+def get_n_cores():
+  nslots = os.getenv('NSLOTS')
+  if nslots is not None:
+    return int(nslots)
+  raise ValueError('Environment variable NSLOTS is not defined.')
 
  
 def apply_classification_loss_rnn(model_function):
     with tf.Graph().as_default() as g:
         frame_depth = 1
         num_labels = 7
-        with tf.device("/cpu:0"):
+        with tf.device("/gpu:0"):
             trainer = tf.train.AdamOptimizer()
             x_ = tf.placeholder(tf.float32, [None,480, 720, frame_depth,1])
             y_ = tf.placeholder(tf.int32, [None,num_labels])
@@ -26,25 +35,30 @@ def apply_classification_loss_rnn(model_function):
     return model_dict
 
 def train_model(model_dict, dataset_generators, epoch_n):
+    session_conf = tf.ConfigProto(
+          intra_op_parallelism_threads=get_n_cores()-1,
+          inter_op_parallelism_threads=1,
+          allow_soft_placement=True, 
+          log_device_placement=True)
 
-    with model_dict['graph'].as_default(), tf.Session() as sess:
+    with model_dict['graph'].as_default():
+        sess = tf.Session(config=session_conf)
         sess.run(tf.variables_initializer(tf.global_variables()))
-        train_record = ()
+        train_collect = []
         for epoch_i in range(epoch_n):
-            train_collect = []
             for iter_i, data_batch in enumerate(dataset_generators['train']):
                 train_feed_dict = dict(zip(model_dict['inputs'], data_batch))
                 train_to_compute = [model_dict['train_op'],model_dict['loss'],model_dict['accuracy']]
                 sess.run(train_to_compute, feed_dict=train_feed_dict)
                 train_collect.append(train_to_compute[1:])
-            train_averages = np.mean(train_collect,axis=0)
-            train_record += tuple(train_averages)
-        print(train_record)
-     
+                if (iter_i%100==1):
+                    print(train_to_compute[1:])
+            train_average = np.mean(train_collect,axis=0)
+            print(train_average)
            
 data_filelist = []
 label_filelist = []
-for i in range(10):
+for i in range(3):
     data_filelist.append('array/X_seq_%d.npy'%(i+1))
     label_filelist.append('array/Y_seq_%d.npy'%(i+1))
 print(data_filelist)
