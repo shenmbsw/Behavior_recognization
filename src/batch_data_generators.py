@@ -52,7 +52,6 @@ def dataset_iterator_fbf(batch_size, data_filelist, label_filelist,file_num):
                     Y = label[curind:curind+batch_size,:]
                     curind = curind + batch_size
                     yield X,Y
-                else:
-                    print('OMG')
+
                     
     
