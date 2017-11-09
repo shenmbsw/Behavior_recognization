@@ -53,21 +53,30 @@ def train_model(model_dict, dataset_generators, epoch_n):
                 train_collect.append(train_to_compute[1:])
                 if (iter_i%100==1):
                     print(train_to_compute[1:])
-            train_average = np.mean(train_collect,axis=0)
-            print(train_average)
-           
-data_filelist = []
-label_filelist = []
-for i in range(3):
-    data_filelist.append('array/X_seq_%d.npy'%(i+1))
-    label_filelist.append('array/Y_seq_%d.npy'%(i+1))
-print(data_filelist)
-print(label_filelist)
+
+
+        
+train_data_filelist = []
+train_label_filelist = []
+
+for i in range(9):
+    train_data_filelist.append('array/X_seq_%d.npy'%(i+1))
+    train_label_filelist.append('array/Y_seq_%d.npy'%(i+1))
+print(train_data_filelist)
+print(train_label_filelist)
+
+test_data_filelist = []
+test_label_filelist = []
+
+for i in range(1):
+    test_data_filelist.append('array/X_seq_%d.npy'%(10-i))
+    test_label_filelist.append('array/Y_seq_%d.npy'%(10-i))
 
 dataset_generators = {
-        'train': bdg.dataset_iterator_fbf(16,data_filelist, label_filelist,10),
-        'test':  bdg.dataset_iterator_fbf(16,data_filelist, label_filelist,10),
+        'train': bdg.dataset_iterator_fbf(32,train_data_filelist, train_label_filelist,9),
+        'test':  bdg.dataset_iterator_fbf(32,test_data_filelist, test_label_filelist,1),
     }
+
 
 model_dict = apply_classification_loss_rnn(cnn_model)
 train_model(model_dict, dataset_generators, 2)

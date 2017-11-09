@@ -25,9 +25,8 @@ def cnn_model(boxes, num_props,num_classes):
         prev_layer = conv1
         in_filters = out_filters
 
-    pool1 = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding='SAME')
+    pool1 = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 1, 1], strides=[1, 2, 2, 1, 1], padding='SAME')
     norm1 = tf.layers.batch_normalization(pool1)
-
     prev_layer = norm1
 
     with tf.variable_scope('conv2') as scope:
@@ -42,13 +41,14 @@ def cnn_model(boxes, num_props,num_classes):
         in_filters = out_filters
 
     # normalize prev_layer here
-    pool2 = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding='SAME')
+    pool2 = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 1, 1], strides=[1, 2, 2, 1, 1], padding='SAME')
     norm2 = tf.layers.batch_normalization(pool2)
+    prev_layer = norm2
         
     with tf.variable_scope('conv3_1') as scope:
         out_filters = 64
         kernel = _weight_variable('weights', [5, 5, 5, in_filters, out_filters])
-        conv = tf.nn.conv3d(norm2, kernel, [1, 1, 1, 1, 1], padding='SAME')
+        conv = tf.nn.conv3d(prev_layer, kernel, [1, 1, 1, 1, 1], padding='SAME')
         biases = _bias_variable('biases', [out_filters])
         bias = tf.nn.bias_add(conv, biases)
         prev_layer = tf.nn.relu(bias, name=scope.name)
@@ -73,9 +73,9 @@ def cnn_model(boxes, num_props,num_classes):
         in_filters = out_filters
 
     # normalize prev_layer here
-    prev_layer = tf.layers.batch_normalization(prev_layer)
-    prev_layer = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 3, 1], strides=[1, 2, 2, 2, 1], padding='SAME')
-
+    pool3 = tf.nn.max_pool3d(prev_layer, ksize=[1, 3, 3, 1, 1], strides=[1, 2, 2, 1, 1], padding='SAME')
+    norm3 = tf.layers.batch_normalization(pool3)
+    prev_layer = norm3
 
     with tf.variable_scope('local3') as scope:
         dim = np.prod(prev_layer.get_shape().as_list()[1:])
