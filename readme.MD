@@ -18,3 +18,11 @@ The thesis Large-scale Video Classification with Convolutional Neural Networks w
 ### Executing
 1. Down load data set and save in the master root.
 2. Execute src/first.py
+ 
+ 3D CNN is trained by tensorflow, so the data should be provide in batch style.
+ seq_data_generators read the numpy array of each video segment and provide them as a dictionary to feed in main_3dconv.py. main_3dconv.py produce the trained model and it provide training loss and validation accuracy in a tensorflow graph file. Use tensor broad to see the training log.
+ The my_script.sh is for runing all those code on SCC.
+ 
+
+ 2D CNN is trained by caffe, the modify the leave k out.sh file to produce leave k out dataset.
+ all the decode frame should be labeled and saperate in different folder in caffe_train/all. after runing the script, a train.txt indicating the path of all train file and a test.txt file will be generated.
